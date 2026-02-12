@@ -34,10 +34,27 @@ jobs:
       - name: Push
         run: docker push acrportfoliocadev.azurecr.io/app:${{ github.sha }}
 
-      - uses: hashicorp/setup-terraform@v3
+      - name: Verify image tag exists in ACR
+        run: |
+          az acr repository show-tags \
+            --name acrportfoliocadev \
+            --repository app \
+            --query "contains(@, '${{ github.sha }}')" -o tsv
+
+      - name: Terraform init (azurerm backend via AzureAD)
+        working-directory: infra/terraform
+        run: |
+          terraform init -reconfigure \
+            -backend-config="resource_group_name=${{ secrets.TFSTATE_RG }}" \
+            -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE }}" \
+            -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
+            -backend-config="key=${{ secrets.TFSTATE_KEY }}" \
+            -backend-config="use_azuread_auth=true"
 
       - name: Terraform apply (set image_tag to commit sha)
         working-directory: infra/terraform
         run: |
-          terraform init
-          terraform apply -auto-approve -var-file=envs/dev.tfvars -var="image_tag=${{ github.sha }}"
+          terraform apply -auto-approve \
+            -var-file=envs/dev.tfvars \
+            -var="image_tag=${{ github.sha }}"
+
