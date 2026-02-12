@@ -1,3 +1,13 @@
+name: terraform-pr
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "infra/terraform/**"
+      - "ansible/**"
+  workflow_dispatch:
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -8,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Terraform checks...
       - uses: hashicorp/setup-terraform@v3
       - name: Terraform fmt
         working-directory: infra/terraform
@@ -20,7 +29,6 @@ jobs:
         working-directory: infra/terraform
         run: terraform validate
 
-      # Ansible checks
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
