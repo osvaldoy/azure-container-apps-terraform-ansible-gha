@@ -24,7 +24,6 @@ jobs:
           tenant-id:  ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # ACR dev do teu projeto atual (nome dev => acrportfoliocadev)
       - name: Login to ACR
         run: az acr login --name acrportfoliocadev
 
@@ -40,6 +39,8 @@ jobs:
             --name acrportfoliocadev \
             --repository app \
             --query "contains(@, '${{ github.sha }}')" -o tsv
+
+      - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform init (azurerm backend via AzureAD)
         working-directory: infra/terraform
@@ -57,4 +58,3 @@ jobs:
           terraform apply -auto-approve \
             -var-file=envs/dev.tfvars \
             -var="image_tag=${{ github.sha }}"
-
