@@ -7,11 +7,6 @@ on:
     paths:
       - "infra/terraform/**"
 
-on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "infra/terraform/**"
 
 jobs:
   apply:
