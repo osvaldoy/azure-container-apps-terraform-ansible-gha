@@ -1,6 +1,7 @@
 - name: Smoke test Container App URL
   hosts: localhost
   gather_facts: false
+  #
   vars:
     app_url: "{{ lookup('env','APP_URL') }}"
   tasks:
