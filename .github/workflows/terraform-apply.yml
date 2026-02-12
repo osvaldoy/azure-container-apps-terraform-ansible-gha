@@ -1,6 +1,13 @@
 name: terraform-apply
 
 on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "infra/terraform/**"
+
+on:
   push:
     branches: [ "main" ]
     paths:
