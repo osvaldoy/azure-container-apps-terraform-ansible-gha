@@ -1,0 +1,40 @@
+name: deploy-prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:  ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Se prod name = portfolio-ca-prod => ACR fica acrportfoliocaprod
+      - name: Login to ACR (prod)
+        run: az acr login --name acrportfoliocaprod
+
+      - name: Build
+        run: docker build -t acrportfoliocaprod.azurecr.io/app:${{ github.sha }} ./app
+
+      - name: Push
+        run: docker push acrportfoliocaprod.azurecr.io/app:${{ github.sha }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform apply (prod)
+        working-directory: infra/terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve -var-file=envs/prod.tfvars -var="image_tag=${{ github.sha }}"

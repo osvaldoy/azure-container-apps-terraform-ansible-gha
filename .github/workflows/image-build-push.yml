@@ -7,8 +7,9 @@ on:
       - "app/**"
 
 jobs:
-  build:
+  build-and-deploy-dev:
     runs-on: ubuntu-latest
+    environment: dev
     permissions:
       contents: read
       id-token: write
@@ -16,13 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Azure login (OIDC ready)
+      - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id:  ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # ACR dev do teu projeto atual (nome dev => acrportfoliocadev)
       - name: Login to ACR
         run: az acr login --name acrportfoliocadev
 
@@ -31,3 +33,11 @@ jobs:
 
       - name: Push
         run: docker push acrportfoliocadev.azurecr.io/app:${{ github.sha }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform apply (set image_tag to commit sha)
+        working-directory: infra/terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve -var-file=envs/dev.tfvars -var="image_tag=${{ github.sha }}"
