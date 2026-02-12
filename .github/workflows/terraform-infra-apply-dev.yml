@@ -69,4 +69,4 @@ jobs:
 
       - name: Smoke test (Ansible)
         working-directory: ansible
-        run: ansible-playbook playbooks/smoke.yml
+        run: ansible-playbook smoke.yml
