@@ -1,0 +1,53 @@
+name: terraform-infra-apply-prod
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: prod-infra
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:  ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Export ARM_* for Terraform
+        run: |
+          echo "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "ARM_USE_OIDC=true" >> $GITHUB_ENV
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init (remote backend via AzureAD)
+        working-directory: infra/terraform
+        run: |
+          terraform init -reconfigure \
+            -backend-config="resource_group_name=${{ secrets.TFSTATE_RG }}" \
+            -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE }}" \
+            -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
+            -backend-config="key=${{ secrets.TFSTATE_KEY_PROD }}" \
+            -backend-config="use_azuread_auth=true"
+
+      - name: Terraform plan (infra)
+        working-directory: infra/terraform
+        run: terraform plan -var-file=envs/prod.tfvars
+
+      - name: Terraform apply (infra)
+        working-directory: infra/terraform
+        run: terraform apply -auto-approve -var-file=envs/prod.tfvars
