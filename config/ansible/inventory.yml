@@ -1,5 +1,0 @@
-all:
-  hosts:
-    container_app:
-      ansible_connection: local
-      url: "https://REPLACE_AFTER_APPLY"
