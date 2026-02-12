@@ -51,3 +51,22 @@ jobs:
       - name: Terraform apply (infra)
         working-directory: infra/terraform
         run: terraform apply -auto-approve -var-file=envs/dev.tfvars
+
+      - name: Export APP_URL from Terraform output
+        working-directory: infra/terraform
+        run: |
+          echo "APP_URL=$(terraform output -raw container_app_url)" >> $GITHUB_ENV
+
+      - name: Setup Python (for Ansible)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible ansible-lint
+
+      - name: Smoke test (Ansible)
+        working-directory: ansible
+        run: ansible-playbook playbooks/smoke.yml

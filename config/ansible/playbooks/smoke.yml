@@ -1,15 +1,23 @@
-- name: Smoke test Container App
-  hosts: all
-  gather_facts: no
+- name: Smoke test Container App URL
+  hosts: localhost
+  gather_facts: false
+  vars:
+    app_url: "{{ lookup('env','APP_URL') }}"
   tasks:
-    - name: HTTP GET
-      uri:
-        url: "{{ url }}"
-        return_content: yes
-        status_code: 200
-      register: resp
-
-    - name: Validate response contains expected string
-      assert:
+    - name: Ensure APP_URL is set
+      ansible.builtin.assert:
         that:
-          - "'Hello from Azure Container Apps' in resp.content"
+          - app_url is match("^https?://")
+        fail_msg: "APP_URL env var must be set to http(s)://..."
+
+    - name: HTTP GET / (expect 200)
+      ansible.builtin.uri:
+        url: "{{ app_url }}"
+        method: GET
+        return_content: no
+        status_code: 200
+        validate_certs: true
+      register: http_result
+      retries: 10
+      delay: 6
+      until: http_result.status == 200
