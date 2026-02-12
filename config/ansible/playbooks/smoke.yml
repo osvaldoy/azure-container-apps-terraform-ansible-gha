@@ -1,0 +1,15 @@
+- name: Smoke test Container App
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: HTTP GET
+      uri:
+        url: "{{ url }}"
+        return_content: yes
+        status_code: 200
+      register: resp
+
+    - name: Validate response contains expected string
+      assert:
+        that:
+          - "'Hello from Azure Container Apps' in resp.content"

@@ -1,0 +1,7 @@
+- name: Lint placeholder (extend later)
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Show inventory URL
+      debug:
+        msg: "Target URL is {{ url }}"

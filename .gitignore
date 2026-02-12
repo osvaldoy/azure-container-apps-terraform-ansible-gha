@@ -1,0 +1,16 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+
+# Azure
+.env
+.envs/
+.env.local
+
+# General
+*.log
+.DS_Store
+EOF
+/scripts
