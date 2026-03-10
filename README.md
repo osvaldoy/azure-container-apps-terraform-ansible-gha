@@ -1,4 +1,4 @@
-# 🚀 Azure Container Apps · Terraform · OIDC · GitHub Actions
+#  Azure Container Apps · Terraform · OIDC · GitHub Actions
 
 Production-style Dev/Prod setup using:
 
@@ -11,7 +11,7 @@ Production-style Dev/Prod setup using:
 
 ---
 
-# 🏗 Architecture Overview
+#  Architecture Overview
 
 ```
                         ┌────────────────────────────┐
@@ -55,7 +55,7 @@ Production-style Dev/Prod setup using:
 
 ---
 
-# 🔐 Authentication Model (OIDC)
+#  Authentication Model (OIDC)
 
 This project uses **OIDC (OpenID Connect)** instead of client secrets.
 
@@ -80,7 +80,7 @@ This project uses **OIDC (OpenID Connect)** instead of client secrets.
 
 ---
 
-# 📦 Terraform Remote State
+#  Terraform Remote State
 
 Remote state is stored in Azure Storage.
 
@@ -112,16 +112,16 @@ terraform init -reconfigure \
 
 ---
 
-# 🧪 How to Run Locally
+# How to Run Locally
 
-## 1️⃣ Login to Azure
+##  Login to Azure
 
 ```bash
 az login
 az account set --subscription <SUB_ID>
 ```
 
-## 2️⃣ Initialize Terraform
+## Initialize Terraform
 
 ```bash
 cd infra/terraform
@@ -134,13 +134,13 @@ terraform init -reconfigure \
   -backend-config="use_azuread_auth=true"
 ```
 
-## 3️⃣ Plan
+## Plan
 
 ```bash
 terraform plan -var-file=envs/dev.tfvars
 ```
 
-## 4️⃣ Apply
+## Apply
 
 ```bash
 terraform apply -var-file=envs/dev.tfvars
@@ -201,7 +201,7 @@ Used for:
 
 ---
 
-# 💰 Budget & Cost Control
+# Budget & Cost Control
 
 Configured in Azure:
 
@@ -220,7 +220,7 @@ Why:
 
 ---
 
-# 🔄 Concurrency Protection
+# Concurrency Protection
 
 In workflows:
 
@@ -238,7 +238,7 @@ Prevents:
 
 ---
 
-# 📘 Runbook (How to Operate)
+# Runbook (How to Operate)
 
 ## 🔹 Deploy new version (Dev)
 
@@ -254,7 +254,7 @@ Prevents:
 
    * Actions → terraform-infra-apply-dev → Run workflow
 
-## 🔹 Deploy to Prod
+## Deploy to Prod
 
 1. Validate in Dev
 2. Trigger:
@@ -262,7 +262,7 @@ Prevents:
    * Actions → deploy-prod → Run workflow
 3. Approve environment if required
 
-## 🔹 Infra change Prod
+## Infra change Prod
 
 1. Modify Terraform
 2. Merge to main
@@ -273,7 +273,7 @@ Prevents:
 
 ---
 
-# 🛡 Security Posture
+# Security Posture
 
 * No secrets in repo
 * OIDC authentication
@@ -284,7 +284,7 @@ Prevents:
 
 ---
 
-# 📂 Project Structure
+# Project Structure
 
 ```
 .
@@ -310,7 +310,7 @@ Prevents:
 
 ---
 
-# 🎯 Design Principles
+# Design Principles
 
 * Infrastructure as Code
 * GitOps workflow
@@ -323,15 +323,6 @@ Prevents:
 
 ---
 
-# 🧠 What This Demonstrates
 
-This repository demonstrates:
-
-* Real-world Azure DevOps architecture
-* OIDC-based cloud authentication
-* Secure Terraform backend configuration
-* Dev/Prod separation
-* CI/CD best practices
-* Cloud cost governance
 
 
